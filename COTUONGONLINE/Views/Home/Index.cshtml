@@ -6,3 +6,61 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+<div>
+    <button id="createRoom">Create Room</button>
+    <input type="text" id="roomIdInput" placeholder="Enter Room ID">
+    <button id="joinRoom">Join Room</button>
+    <div id="messages"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.10/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/roomHub")
+        .build();
+
+    connection.start()
+        .then(() => console.log("Connected to RoomHub"))
+        .catch(err => console.error("Connection error: ", err));
+
+    document.getElementById("createRoom").addEventListener("click", async () => {
+        try {
+            const response = await fetch('/api/Room/create', { method: 'POST' });
+
+            // Kiểm tra nếu phản hồi thành công
+            if (response.ok) {
+                const data = await response.json();
+                const roomId = data.roomId;
+                document.getElementById("messages").innerText = `Room created. Room ID: ${roomId}`;
+            } else {
+                console.error("Failed to create room:", response.statusText);
+                document.getElementById("messages").innerText = `Failed to create room: ${response.statusText}`;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("messages").innerText = `Error: ${error.message}`;
+        }
+    });
+
+
+    document.getElementById("joinRoom").addEventListener("click", async () => {
+        const roomId = document.getElementById("roomIdInput").value;
+        const playerId = prompt("Enter your Player ID:");
+        await connection.invoke("JoinRoom", roomId, playerId);
+    });
+
+    connection.on("ReceiveMessage", (message) => {
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += `<p>${message}</p>`;
+
+        // Giả sử thông điệp từ server có thể là "Ready" khi đã đủ người chơi
+        if (message === "Ready") {
+            loadChessBoard(); // Hàm này sẽ load bàn cờ khi có đủ người chơi
+        }
+    });
+
+    function loadChessBoard() {
+        document.getElementById("messages").innerHTML += `<p>Game started! Loading chessboard...</p>`;
+        // Hiển thị hoặc tải bàn cờ ở đây
+    }
+
+</script>

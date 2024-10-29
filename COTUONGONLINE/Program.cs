@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using COTUONGONLINE.Data;
 using COTUONGONLINE.Areas.Identity.Data;
@@ -10,6 +10,8 @@ builder.Services.AddDbContext<COTUONGONLINEContext>(options => options.UseSqlSer
 
 builder.Services.AddDefaultIdentity<COTUONGONLINEUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<COTUONGONLINEContext>();
 
+// Đăng ký SignalR
+builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

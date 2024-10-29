@@ -6,7 +6,7 @@ namespace COTUONGONLINE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoomControllercs : Controller
+    public class RoomController : Controller
     {
         private static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
