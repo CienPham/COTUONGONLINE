@@ -1,95 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Xiangqi Room</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="text-center mb-4">
-            <h1>CỜ TƯỚNG ONLINE</h1>
-            <p class="text-muted">Tạo phòng hoặc nhập mã phòng để tham gia phòng chơi và nhắn tin với mọi người trong phòng nào !!!🤩🤩🤩
-                á sướng c sướngc.</p>
+﻿<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <div id="app" style="min-height:800px">
+                <div class="chessboard">
+                    <div v-for="item in chessNode" class="chessnode"
+                         v-on:dragstart="dragStart"
+                         v-on:dragend="dragEnd"
+                         :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
+                        <img :src="'/' + item.src" class="chessimgnode" />
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="card mx-auto shadow-sm" style="max-width: 600px;">
-            <div class="card-body">
-                <div class="form-group text-center">
-                    <button class="btn btn-primary mr-2" id="createRoom">Create Room</button>
-                    <input type="text" id="roomIdInput" class="form-control d-inline w-50" placeholder="Enter Room ID">
-                    <button class="btn btn-success ml-2" id="joinRoom">Join Room</button>
-                    <button class="btn btn-danger ml-2" id="leaveRoom">Leave Room</button>
-                </div>
-                
-                <div id="messages" class="bg-white border rounded p-3 mb-3" style="height: 200px; overflow-y: auto;">
-                    <!-- Tin nhắn sẽ được thêm tại đây -->
-                </div>
-                
-                <div class="input-group">
-                    <input type="text" id="messageInput" class="form-control" placeholder="Enter your message">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" id="sendMessage">Send Message</button>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary mr-2" id="createRoom">Create Room</button>
+                        <input type="text" id="roomIdInput" class="form-control d-inline w-50" placeholder="Enter Room ID">
+                        <button class="btn btn-success ml-2" id="joinRoom">Join Room</button>
+                        <button class="btn btn-danger ml-2" id="leaveRoom">Leave Room</button>
+                    </div>
+
+                    <div id="messages" class="mb-3">
+                        <!-- Tin nhắn sẽ được thêm tại đây -->
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Enter your message">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="sendMessage">Send Message</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.10/signalr.min.js"></script>
-    <script>
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/roomHub")
-            .build();
-
-        connection.start()
-            .then(() => console.log("Connected to RoomHub"))
-            .catch(err => console.error("Connection error: ", err));
-
-        let currentRoomId = null;
-        let playerId = prompt("Enter your Player ID:");
-
-        document.getElementById("createRoom").addEventListener("click", async () => {
-            const response = await fetch('/api/Room/create', { method: 'POST' });
-            if (response.ok) {
-                const data = await response.json();
-                currentRoomId = data.roomId;
-                document.getElementById("messages").innerText = `Room created. Room ID: ${currentRoomId}`;
-            } else {
-                console.error("Failed to create room:", response.statusText);
-            }
-        });
-
-        document.getElementById("joinRoom").addEventListener("click", async () => {
-            currentRoomId = document.getElementById("roomIdInput").value;
-            await connection.invoke("JoinRoom", currentRoomId, playerId);
-        });
-
-        document.getElementById("leaveRoom").addEventListener("click", async () => {
-            if (currentRoomId) {
-                await connection.invoke("LeaveRoom", currentRoomId, playerId);
-                currentRoomId = null;
-                document.getElementById("messages").innerText = "You have left the room.";
-            }
-        });
-
-        document.getElementById("sendMessage").addEventListener("click", async () => {
-            const message = document.getElementById("messageInput").value;
-            if (currentRoomId && message) {
-                await connection.invoke("SendMessage", currentRoomId, playerId, message);
-                document.getElementById("messageInput").value = ""; // Xóa ô nhập tin nhắn
-            }
-        });
-
-        connection.on("ReceiveMessage", (message) => {
-            const messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML += `<p>${message}</p>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        });
-    </script>
-</body>
-</html>
