@@ -1,4 +1,12 @@
-﻿var matrix = [];
+﻿// Kết nối đến SignalR
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/roomHub")
+    .build();
+
+connection.start().then(() => {
+    console.log("Connected to SignalR hub");
+}).catch(err => console.error(err.toString()));
+var matrix = [];
 var app = new Vue({
     el: '#app',
     data: {
@@ -328,18 +336,16 @@ var app = new Vue({
                     var temp = document.getElementById(objRemove.id);
                     temp.style.display = "none";
                 }
+                connection.invoke("SendChessMove", JSON.stringify(para)).catch(err => console.error(err.toString()));
             });
 
         }
     },
-    mounted: function () {
+    mounted: function ()
+    {
         this.getChessNode();
         let params = new URL(document.location.toString()).searchParams;
         let roomId = params.get("roomId");
-
-        // Thay đổi đường dẫn đến Hub nếu cần
-        var connection = new signalR.HubConnectionBuilder().withUrl("/roomHub?roomId=" + roomId).build();
-
         connection.on("ReceiveChessMove", function (message) {
             console.log(message);
             var response = JSON.parse(message);
@@ -357,24 +363,19 @@ var app = new Vue({
             }
         });
 
-        connection.start().then(function () {
-            console.log("Connected to SignalR Hub");
-        }).catch(function (err) {
-            return console.error(err.toString());
-        });
+       /* // Khởi động connection
+        connection.start()
+            .then(() => {
+                console.log("Connected to RoomHub");
+                // Nếu có roomId, tự động join room
+                if (roomId) {
+                    connection.invoke("JoinRoom", roomId, playerId);
+                }
+            })
+            .catch(err => console.error("Connection error: ", err));*/
     }
 
 });
-
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/roomHub")
-    .build();
-
-connection.start()
-    .then(() => console.log("Connected to RoomHub"))
-    .catch(err => console.error("Connection error: ", err));
-
 
 
 document.getElementById("createRoom").addEventListener("click", async () => {
@@ -416,3 +417,4 @@ connection.on("ReceiveMessage", (message) => {
     messagesDiv.innerHTML += `<p>${message}</p>`;
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
+

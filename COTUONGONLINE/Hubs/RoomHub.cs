@@ -48,5 +48,11 @@ namespace COTUONGONLINE.Hubs
         {
             await Clients.Group(roomId).SendAsync("ReceiveMessage", $"{playerId}: {message}");
         }
+        public async Task SendChessMove(string message)
+        {
+            // Gửi thông điệp đến tất cả các client trong phòng
+            await Clients.All.SendAsync("ReceiveChessMove", message);
+        }
+
     }
 }
