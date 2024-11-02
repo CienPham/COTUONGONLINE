@@ -1,10 +1,20 @@
 ﻿body {
-    background-color: #f8f9fa;
-    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
 }
 
 .container {
-    margin-top: 20px;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.game-container {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: start;
 }
 
 .chessboard {
@@ -12,53 +22,179 @@
     height: 850px;
     background-image: url("/Images/bancotuong.jpg");
     position: relative;
-    border: 2px solid #333;
-    border-radius: 10px;
+    border: 4px solid #8b4513;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(139, 69, 19, 0.3);
+    transition: transform 0.3s ease;
 }
+
+    .chessboard:hover {
+        transform: scale(1.01);
+    }
 
 .chessnode {
     position: absolute;
     width: 50px;
     height: 50px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
+
+    .chessnode:hover {
+        transform: scale(1.1);
+        filter: brightness(1.2);
+    }
+
+    .chessnode:active {
+        transform: scale(0.95);
+    }
 
 .chessimgnode {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.card {
-    max-width: 600px;
-    margin: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
+.game-sidebar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    width: 400px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.form-group {
-    margin-bottom: 15px;
+.room-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #4a90e2, #357abd);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.form-control {
+    padding: 0.8rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #4a90e2;
+        background: rgba(255, 255, 255, 0.1);
+    }
 
 #messages {
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    padding: 10px;
-    height: 200px;
+    height: 300px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
     overflow-y: auto;
+    margin-bottom: 1rem;
+    color: #fff;
 }
 
-.input-group {
-    margin-top: 10px;
-}
-
-button {
-    transition: background-color 0.3s;
-}
-
-    button:hover {
-        background-color: #0056b3;
-        color: white;
+    #messages p {
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+        margin: 0.5rem 0;
+        animation: fadeIn 0.5s ease;
     }
+
+.message-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+    .message-input input {
+        flex: 1;
+    }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animated-piece {
+    animation: movePiece 0.3s ease;
+}
+
+@keyframes movePiece {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
