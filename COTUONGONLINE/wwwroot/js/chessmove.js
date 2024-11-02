@@ -12,12 +12,7 @@ var app = new Vue({
     data: {
         chessNode: [],
         top: 0,
-        left: 0,
-        currentTurn: 'do', 
-        gameOver: false,
-        winner: null,
-        isRedKingAlive: true,
-        isBlackKingAlive: true
+        left: 0
 
     },
     methods: {
@@ -98,76 +93,7 @@ var app = new Vue({
             }
             return null;
         },
-        checkVictory() {
-            // Kiểm tra xem các vua còn sống không
-            let redKing = document.getElementById('chutuongdo');
-            let blackKing = document.getElementById('chutuongden');
-
-            this.isRedKingAlive = redKing && redKing.style.display !== "none";
-            this.isBlackKingAlive = blackKing && blackKing.style.display !== "none";
-
-            if (!this.isRedKingAlive) {
-                this.gameOver = true;
-                this.winner = 'den';
-                return true;
-            }
-            if (!this.isBlackKingAlive) {
-                this.gameOver = true;
-                this.winner = 'do';
-                return true;
-            }
-
-            return false;
-        },
-        checkKingsFaceToFace() {
-            // Lấy vị trí của hai tướng
-            let redKing = this.getIndexByTopLef(document.getElementById('chutuongdo').offsetTop, document.getElementById('chutuongdo').offsetLeft, matrix);
-            let blackKing = this.getIndexByTopLef(document.getElementById('chutuongden').offsetTop, document.getElementById('chutuongden').offsetLeft, matrix);
-
-            // Kiểm tra nếu hai tướng cùng cột
-            if (redKing && blackKing && redKing.j === blackKing.j) {
-                // Kiểm tra không có quân nào chắn giữa hai tướng
-                const minI = Math.min(redKing.i, blackKing.i);
-                const maxI = Math.max(redKing.i, blackKing.i);
-                for (let i = minI + 1; i < maxI; i++) {
-                    if (matrix[i][redKing.j].id !== "") {
-                        return false; // Có quân chắn giữa, không đối mặt
-                    }
-                }
-
-                // Nếu hai tướng đối mặt, xác định bên thắng
-                this.gameOver = true;
-                this.winner = this.currentTurn === 'do' ? 'den' : 'do';
-                console.log(`Chiến thắng: ${this.winner}`);
-                return true;
-            }
-            return false;
-        },
-
-        // Thêm method kiểm tra lượt đi
-        checkTurn(pieceId) {
-            let isRedPiece = pieceId.indexOf('do') >= 0;
-            let isBlackPiece = pieceId.indexOf('den') >= 0;
-
-            if ((this.currentTurn === 'do' && !isRedPiece) ||
-                (this.currentTurn === 'den' && !isBlackPiece)) {
-                console.log('Lỗi: Chưa đến lượt của bạn');
-                return false;
-            }
-            return true;
-        },
-
         dragStart(event) {
-            if (this.gameOver) {
-                console.log('Trò chơi đã kết thúc!');
-                return;
-            }
-
-            const pieceId = event.currentTarget.id;
-            if (!this.checkTurn(pieceId)) {
-                event.preventDefault();
-                return;
-            }
 
             this.top = event.clientY;
             this.left = event.clientX;
@@ -396,72 +322,57 @@ var app = new Vue({
                 responseType: 'json',
                 data: para
             }).then((response) => {
-                // Cập nhật matrix và giao diện như cũ
+                // Cập nhật matrix
                 matrix[nodeStart.i][nodeStart.j].id = "";
                 matrix[nodeEnd.i][nodeEnd.j].id = id;
 
+                // Cập nhật vị trí của quân cờ trên giao diện
                 var obj = document.getElementById(id);
                 obj.style.top = matrix[nodeEnd.i][nodeEnd.j].top + 'px';
                 obj.style.left = matrix[nodeEnd.i][nodeEnd.j].left + 'px';
 
+                // Nếu có ăn quân, ẩn quân bị ăn
                 if (objRemove != null) {
                     var temp = document.getElementById(objRemove.id);
                     temp.style.display = "none";
                 }
-
-                // Kiểm tra chiến thắng
-                if (this.checkVictory() || this.checkKingsFaceToFace()) {
-                    let winnerText = this.winner === 'do' ? 'ĐỎ' : 'ĐEN';
-                    alert(`Người chơi ${winnerText} đã chiến thắng!`);
-                    connection.invoke("SendGameOver", roomId, this.winner).catch(err => console.error(err.toString()));
-                } else {
-                    // Đổi lượt nếu chưa có người thắng
-                    this.currentTurn = this.currentTurn === 'do' ? 'den' : 'do';
-                    // Gửi thông tin về nước đi và lượt mới
-                    let moveInfo = {
-                        move: para,
-                        nextTurn: this.currentTurn
-                    };
-                    connection.invoke("SendChessMove", JSON.stringify(moveInfo)).catch(err => console.error(err.toString()));
-                }
+                connection.invoke("SendChessMove", JSON.stringify(para)).catch(err => console.error(err.toString()));
             });
+
         }
     },
-    mounted: function () {
+    mounted: function ()
+    {
         this.getChessNode();
         let params = new URL(document.location.toString()).searchParams;
         let roomId = params.get("roomId");
+        connection.on("ReceiveChessMove", function (message) {
+            console.log(message);
+            var response = JSON.parse(message);
+            matrix[response[0].fromi][response[0].fromj].id = "";
+            var nodeEnd = matrix[response[0].toi][response[0].toj];
+            nodeEnd.id = response[0].id;
 
-        // Cập nhật xử lý nhận nước đi
-        connection.on("ReceiveChessMove", (message) => {
-            let moveInfo = JSON.parse(message);
-            let move = moveInfo.move;
-
-            // Cập nhật bàn cờ
-            matrix[move[0].fromi][move[0].fromj].id = "";
-            var nodeEnd = matrix[move[0].toi][move[0].toj];
-            nodeEnd.id = move[0].id;
-
-            var obj = document.getElementById(move[0].id);
+            var obj = document.getElementById(response[0].id);
             obj.style.top = nodeEnd.top + 'px';
             obj.style.left = nodeEnd.left + 'px';
 
-            if (move.length > 1) {
-                var temp = document.getElementById(move[1].id);
+            if (response.length > 1) {
+                var temp = document.getElementById(response[1].id);
                 temp.style.display = "none";
             }
-
-            // Cập nhật lượt đi
-            this.currentTurn = moveInfo.nextTurn;
         });
 
-        // Thêm xử lý khi game kết thúc
-        connection.on("ReceiveGameOver", (winner) => {
-            this.gameOver = true;
-            this.winner = winner;
-            let winnerText = winner === 'do' ? 'ĐỎ' : 'ĐEN';
-            alert(`Người chơi ${winnerText} đã chiến thắng!`);
-        });
+       /* // Khởi động connection
+        connection.start()
+            .then(() => {
+                console.log("Connected to RoomHub");
+                // Nếu có roomId, tự động join room
+                if (roomId) {
+                    connection.invoke("JoinRoom", roomId, playerId);
+                }
+            })
+            .catch(err => console.error("Connection error: ", err));*/
     }
 
 });
@@ -478,7 +389,7 @@ document.getElementById("createRoom").addEventListener("click", async () => {
     }
 });
 let currentRoomId = null;
-let playerId = prompt("Hãy nhập ID Player mà bạn mong muốn:");
+let playerId = prompt("Enter your Player ID:");
 
 document.getElementById("joinRoom").addEventListener("click", async () => {
     currentRoomId = document.getElementById("roomIdInput").value;
