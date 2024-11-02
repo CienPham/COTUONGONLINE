@@ -1,8 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <div id="app" style="min-height:800px">
+                <div class="chessboard">
+                    <div v-for="item in chessNode" class="chessnode"
+                         v-on:dragstart="dragStart"
+                         v-on:dragend="dragEnd"
+                         :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
+                        <img :src="'/' + item.src" class="chessimgnode" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary mr-2" id="createRoom">Create Room</button>
+                        <input type="text" id="roomIdInput" class="form-control d-inline w-50" placeholder="Enter Room ID">
+                        <button class="btn btn-success ml-2" id="joinRoom">Join Room</button>
+                        <button class="btn btn-danger ml-2" id="leaveRoom">Leave Room</button>
+                    </div>
+
+                    <div id="messages" class="mb-3">
+                        <!-- Tin nhắn sẽ được thêm tại đây -->
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Enter your message">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="sendMessage">Send Message</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+

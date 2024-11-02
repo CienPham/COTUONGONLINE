@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - COTUONGONLINE</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/styles.css" />
+
     <link rel="stylesheet" href="~/COTUONGONLINE.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -30,7 +32,7 @@
                 </div>
             </div>
         </nav>
-        <partial name="_Loginpartial" />
+      
     </header>
     <div class="container">
         <main role="main" class="pb-3">
@@ -43,9 +45,14 @@
             &copy; 2024 - COTUONGONLINE - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft.signalr/5.0.13/signalr.min.js"></script>
+    <script src="~/js/room.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.10/signalr.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/chessmove.js" asp-append-version="true"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -6,16 +6,22 @@ namespace COTUONGONLINE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoomControllercs : Controller
+    public class RoomController : Controller
     {
         private static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
-
         [HttpPost("create")]
         public IActionResult CreateRoom()
         {
-            string roomId = Guid.NewGuid().ToString();
+            string roomId;
+            // Lặp lại cho đến khi tạo được mã phòng duy nhất
+            do
+            {
+                roomId = new Random().Next(100000, 999999).ToString();
+            } while (rooms.ContainsKey(roomId));
+
             var newRoom = new Room(roomId);
             rooms.Add(roomId, newRoom);
+
             return Ok(new { RoomId = roomId });
         }
 
